@@ -1,4 +1,4 @@
-project(easybluetooth)
+project(bluetoothserialport)
 cmake_minimum_required(VERSION 2.8)
 
 if (NOT MSVC)
@@ -22,13 +22,9 @@ endif()
 
 include_directories(./src)
 
-if (MSVC)
-	add_library(easybluetooth STATIC ${srcs})
-else()
-	add_library(easybluetooth SHARED ${srcs})
-endif()
+add_library(bluetoothserialport STATIC ${srcs})
 
 add_executable(inquiretest EXCLUDE_FROM_ALL test/main.cpp)
 
-target_link_libraries(easybluetooth ${libs})
-target_link_libraries(inquiretest easybluetooth)
+target_link_libraries(bluetoothserialport ${libs})
+target_link_libraries(inquiretest bluetoothserialport)
