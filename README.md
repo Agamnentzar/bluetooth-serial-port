@@ -4,18 +4,19 @@ Based on <a href="https://github.com/eelcocramer/node-bluetooth-serial-port">Blu
 
 ## Pre-requests on Linux
 
+* CMake
 * Needs Bluetooth development packages to build
 
 `apt-get install build-essential libbluetooth-dev`
 
 ## Pre-request on OS X
 
+* CMake from MacPorts
 * Needs XCode and XCode command line tools installed.
 
 ## Pre-request on Windows
 
-* Needs Visual Studio (Visual C++) and its command line tools installed.
-* Needs Python 2.x installed and accessible from the command line path.
+* CMake
 
 # Documentation
 
