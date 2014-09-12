@@ -57,7 +57,40 @@ Returns list of bluetooth devices in range
 
 #### DeviceINQ::SdpSearch(address)
 
-Returns channelID of device at given address
+Returns serial port channelID for device at given address
+
+* __address__: string containing bluetooth address of the device
+
+### BTSerialPortBinding
+
+#### BTSerialPortBinding::Create(address, channelID)
+
+Returns new instance of BTSerialPortBinding object
+
+* __address__: string containint bluetooth address of the device
+* __channelID__: ID of the serial port channel
+
+#### BTSerialPortBinding::Connect()
+
+Connects to the device, needs to be called before any Read/Write calls
+
+#### BTSerialPortBinding::Close()
+
+Closes connection to the device
+
+#### BTSerialPortBinding::Read(buffer, length)
+
+Reads data from the device, returns numbe rof bytes read
+
+* __buffer__: pointer to buffer to hold received data
+* __length__: maximum namber of bytes to read
+
+#### BTSerialPortBinding::Write(buffer, length)
+
+Writes data to the device
+
+* __buffer__: pointer to buffer with data to send
+* __length__: number of bytes to send
 
 ## LICENSE
 
