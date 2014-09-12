@@ -59,6 +59,7 @@ BTSerialPortBinding::BTSerialPortBinding(char address[40], int channelID)
 
 BTSerialPortBinding::~BTSerialPortBinding()
 {
+	Close();
 	delete data;
 }
 
@@ -68,7 +69,10 @@ void BTSerialPortBinding::Connect()
 
 	// allocate an error pipe
 	if (pipe(data->rep) == -1)
-		throw BluetoothException("Cannot create pipe for reading.");
+	{
+		string err("Cannot create pipe for reading - ");
+		throw BluetoothException(err + strerror(errno));
+	}
 
 	int flags = fcntl(data->rep[0], F_GETFL, 0);
 	fcntl(data->rep[0], F_SETFL, flags | O_NONBLOCK);
@@ -106,7 +110,7 @@ void BTSerialPortBinding::Close()
 	}
 }
 
-int BTSerialPortBinding::Read(char *buffer, int offset, int length)
+int BTSerialPortBinding::Read(char *buffer, int length)
 {
 	if (data->s == 0)
 		throw BluetoothException("connection has been closed");
@@ -128,7 +132,7 @@ int BTSerialPortBinding::Read(char *buffer, int offset, int length)
 	if (pselect(nfds + 1, &set, NULL, NULL, NULL, NULL) >= 0)
 	{
 		if (FD_ISSET(data->s, &set))
-			size = read(data->s, buffer + offset, length);
+			size = read(data->s, buffer, length);
 		else // when no data is read from rfcomm the connection has been closed.
 			size = 0;
 	}
@@ -139,7 +143,7 @@ int BTSerialPortBinding::Read(char *buffer, int offset, int length)
 	return size;
 }
 
-void BTSerialPortBinding::Write(char *buffer, int offset, int length)
+void BTSerialPortBinding::Write(const char *buffer, int length)
 {
 	if (buffer == nullptr)
 		throw BluetoothException("buffer cannot be null");
@@ -150,6 +154,6 @@ void BTSerialPortBinding::Write(char *buffer, int offset, int length)
 	if (data->s == 0)
 		throw BluetoothException("Attempting to write to a closed connection");
 
-	if (write(data->s, buffer + offset, length) != length)
+	if (write(data->s, buffer, length) != length)
 		throw BluetoothException("Writing attempt was unsuccessful");
 }

@@ -16,11 +16,10 @@ private:
 #ifdef _WINDOWS_
 	bool initialized;
 #endif
-
 	DeviceINQ();
-	~DeviceINQ();
-public:
 
+public:
+	~DeviceINQ();
 	static DeviceINQ *Create();
 	std::vector<device> Inquire();
 	int SdpSearch(std::string address);

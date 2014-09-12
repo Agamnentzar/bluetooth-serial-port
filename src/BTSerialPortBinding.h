@@ -11,16 +11,15 @@ private:
 	bluetooth_data *data;
 	char address[40];
 	int channelID;
-
 	BTSerialPortBinding(char address[40], int channelID);
-	~BTSerialPortBinding();
 
 public:
+	~BTSerialPortBinding();
 	static BTSerialPortBinding *Create(std::string address, int channelID);
 	void Connect();
 	void Close();
-	int Read(char *buffer, int offset, int length);
-	void Write(char *buffer, int offset, int length);
+	int Read(char *buffer, int length);
+	void Write(const char *buffer, int length);
 };
 
 #endif

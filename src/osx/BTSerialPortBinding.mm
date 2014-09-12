@@ -115,7 +115,7 @@ int BTSerialPortBinding::Read(char *buffer, int offset, int length)
     return size;
 }
 
-void BTSerialPortBinding::Write(char *buffer, int offset, int length)
+void BTSerialPortBinding::Write(const char *buffer, int length)
 {
 	if (buffer == nullptr)
 		throw BluetoothException("buffer cannot be null");
@@ -127,7 +127,7 @@ void BTSerialPortBinding::Write(char *buffer, int offset, int length)
     BluetoothWorker *worker = [BluetoothWorker getInstance];
     NSString *addressString = [NSString stringWithCString:address encoding:NSASCIIStringEncoding];
 
-    if ([worker writeAsync: buffer + offset length: length toDevice: addressString] != kIOReturnSuccess)
+    if ([worker writeAsync: const_cast<char*>(buffer) length: length toDevice: addressString] != kIOReturnSuccess)
         throw BluetoothException("Write was unsuccessful");
 
     [pool release];
