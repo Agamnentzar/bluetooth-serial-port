@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2014, Radosław Eichler
  * Copyright (c) 2012-2013, Eelco Cramer
  * All rights reserved.
  *
@@ -12,6 +13,8 @@
 #ifndef NODE_BTSP_SRC_BLUETOOTH_WORKER_H
 #define NODE_BTSP_SRC_BLUETOOTH_WORKER_H
 
+#include <string>
+
 #import <Foundation/NSObject.h>
 #import <IOBluetooth/objc/IOBluetoothRFCOMMChannel.h>
 #import <IOBluetooth/objc/IOBluetoothDevice.h>
@@ -19,8 +22,14 @@
 #import "pipe.h"
 
 struct device_info_t {
-	char address[19];
-	char name[248];
+	std::string address;
+	std::string name;
+	bool connected;
+	bool paired;
+	bool favorite;
+	int classOfDevice;
+	int rssi;
+	double lastSeen;
 };
 
 @interface BluetoothWorker: NSObject {

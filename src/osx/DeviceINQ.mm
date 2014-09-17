@@ -33,18 +33,18 @@ DeviceINQ *DeviceINQ::Create()
 	return new DeviceINQ();
 }
 
-DeviceINQ::DeviceINQ() {
-
+DeviceINQ::DeviceINQ()
+{
 }
-    
-DeviceINQ::~DeviceINQ() {
 
+DeviceINQ::~DeviceINQ()
+{
 }
- 
-vector<device> DeviceINQ::Inquire() {
+
+vector<device> DeviceINQ::Inquire()
+{
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
     BluetoothWorker *worker = [BluetoothWorker getInstance];
-	vector<device> devices;
 
     // create pipe to communicate with delegate
     pipe_t *pipe = pipe_new(sizeof(device_info_t), 0);
@@ -52,38 +52,43 @@ vector<device> DeviceINQ::Inquire() {
     pipe_consumer_t *c = pipe_consumer_new(pipe);
     pipe_free(pipe);
 
-    device_info_t *info = new device_info_t;
+    device_info_t info;
     size_t result;
+	vector<device> devices;
 
-    do {
-        result = pipe_pop_eager(c, info, 1);
+    do
+	{
+        result = pipe_pop_eager(c, &info, 1);
 
-        if (result != 0) {
-			device d;
-			d.address = string(info->address);
-			d.name = string(info->name);
-			devices.push_back(d);
+        if (result != 0)
+		{
+			int cod = info.classOfDevice;
+
+			device dev;
+			dev.address = string(info.address);
+			dev.name = string(info.name);
+			dev.connected = info.connected;
+			dev.remembered = info.favorite;
+			dev.authenticated = info.paired;
+			dev.lastSeen = (uint32_t)info.lastSeen;
+			dev.lastUsed = 0;
+			dev.deviceClass = (DeviceClass)(cod & 0x1ffc);
+			dev.majorDeviceClass = (DeviceClass)(cod & DC_Uncategorized);
+			dev.serviceClass = (ServiceClass)(cod >> 13);
+			devices.push_back(dev);
         }
     } while (result != 0);
     
-    delete info;
     pipe_consumer_free(c);
 
     [pool release];
 	return devices;
 }
-    
-int DeviceINQ::SdpSearch(string address) {
-	char addressBuffer[40];
 
-	if (address.length() >= 40)
-		throw BluetoothException("Address length is invalid");
-
-	strcpy(addressBuffer, address.c_str());
-
+int DeviceINQ::SdpSearch(string address)
+{
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-
-    NSString *addr = [NSString stringWithCString:addressBuffer encoding:NSASCIIStringEncoding];
+    NSString *addr = [NSString stringWithCString: address.c_str() encoding: NSASCIIStringEncoding];
     BluetoothWorker *worker = [BluetoothWorker getInstance];
     int channelID = [worker getRFCOMMChannelID: addr];
 

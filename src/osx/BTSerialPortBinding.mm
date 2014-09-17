@@ -1,10 +1,6 @@
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
-#import <Foundation/NSObject.h>
-#import <IOBluetooth/objc/IOBluetoothDevice.h>
-#import <IOBluetooth/objc/IOBluetoothDeviceInquiry.h>
-#import "pipe.h"
 #include "BluetoothException.h"
 #include "BTSerialPortBinding.h"
 #include "BluetoothWorker.h"
@@ -24,6 +20,11 @@ extern "C"{
     #include <assert.h>
 }
 
+#import <Foundation/NSObject.h>
+#import <IOBluetooth/objc/IOBluetoothDevice.h>
+#import <IOBluetooth/objc/IOBluetoothDeviceInquiry.h>
+#import "pipe.h"
+
 struct bluetooth_data
 {
 	pipe_consumer_t *consumer;
@@ -36,23 +37,14 @@ BTSerialPortBinding *BTSerialPortBinding::Create(string address, int channelID)
 	if (channelID <= 0)
 		throw BluetoothException("ChannelID should be a positive int value");
 
-	char addressBuffer[40];
-
-	if (address.length() >= 40)
-		throw BluetoothException("Address length is invalid");
-	
-	if (strcpy(addressBuffer, address.c_str()) != 0)
-		throw BluetoothException("Address (first argument) length is invalid");
-
-	return new BTSerialPortBinding(addressBuffer, channelID);
+	return new BTSerialPortBinding(address, channelID);
 }
 
-BTSerialPortBinding::BTSerialPortBinding(char address[40], int channelID) 
-	: channelID(channelID) 
+BTSerialPortBinding::BTSerialPortBinding(string address, int channelID)
+	: address(address), channelID(channelID) 
 {
 	data = new bluetooth_data();
 	data->consumer = NULL;
-	strcpy(this->address, address);
 }
 
 BTSerialPortBinding::~BTSerialPortBinding()
@@ -63,7 +55,7 @@ BTSerialPortBinding::~BTSerialPortBinding()
 void BTSerialPortBinding::Connect()
 {
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-    NSString *addressString = [NSString stringWithCString:address encoding:NSASCIIStringEncoding];
+    NSString *addressString = [NSString stringWithCString:address.c_str() encoding:NSASCIIStringEncoding];
     BluetoothWorker *worker = [BluetoothWorker getInstance];
     // create pipe to communicate with delegate
     pipe_t *pipe = pipe_new(sizeof(int), 0);
@@ -91,12 +83,12 @@ void BTSerialPortBinding::Connect()
 
 void BTSerialPortBinding::Close()
 {
-    NSString *addressString = [NSString stringWithCString:address encoding:NSASCIIStringEncoding];
+    NSString *addressString = [NSString stringWithCString:address.c_str() encoding:NSASCIIStringEncoding];
     BluetoothWorker *worker = [BluetoothWorker getInstance];
     [worker disconnectFromDevice: addressString];
 }
 
-int BTSerialPortBinding::Read(char *buffer, int offset, int length)
+int BTSerialPortBinding::Read(char *buffer, int length)
 {
     if (data->consumer == NULL)
         throw BluetoothException("connection has been closed");
@@ -104,7 +96,7 @@ int BTSerialPortBinding::Read(char *buffer, int offset, int length)
 	if (buffer == nullptr)
 		throw BluetoothException("buffer cannot be null");
 
-    size_t size = pipe_pop_eager(data->consumer, buffer + offset, length);
+    size_t size = pipe_pop_eager(data->consumer, buffer, length);
 
     if (size == 0) {
         pipe_consumer_free(data->consumer);
@@ -125,7 +117,7 @@ void BTSerialPortBinding::Write(const char *buffer, int length)
 
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
     BluetoothWorker *worker = [BluetoothWorker getInstance];
-    NSString *addressString = [NSString stringWithCString:address encoding:NSASCIIStringEncoding];
+    NSString *addressString = [NSString stringWithCString:address.c_str() encoding:NSASCIIStringEncoding];
 
     if ([worker writeAsync: const_cast<char*>(buffer) length: length toDevice: addressString] != kIOReturnSuccess)
         throw BluetoothException("Write was unsuccessful");

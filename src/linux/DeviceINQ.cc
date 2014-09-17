@@ -42,25 +42,19 @@ DeviceINQ::~DeviceINQ()
 
 vector<device> DeviceINQ::Inquire()
 {
-	// do the bluetooth magic
-	inquiry_info *ii = NULL;
-	int max_rsp, num_rsp;
-	int dev_id, sock, len, flags;
 	char addr[19] = { 0 };
 	char name[248] = { 0 };
-
-	dev_id = hci_get_route(NULL);
-	sock = hci_open_dev(dev_id);
+	int dev_id = hci_get_route(NULL);
+	int sock = hci_open_dev(dev_id);
 
 	if (dev_id < 0 || sock < 0)
 		throw BluetoothException("error opening socket");
 
-	len = 8;
-	max_rsp = 255;
-	flags = IREQ_CACHE_FLUSH;
-	ii = (inquiry_info*)malloc(max_rsp * sizeof(inquiry_info));
-
-	num_rsp = hci_inquiry(dev_id, len, max_rsp, NULL, &ii, flags);
+	int len = 8;
+	int max_rsp = 255;
+	int flags = IREQ_CACHE_FLUSH;
+	inquiry_info *ii = (inquiry_info*)malloc(max_rsp * sizeof(inquiry_info));
+	int num_rsp = hci_inquiry(dev_id, len, max_rsp, NULL, &ii, flags);
 
 	//if(num_rsp < 0)
 	//	throw BluetoothException("hci inquiry");
@@ -75,10 +69,24 @@ vector<device> DeviceINQ::Inquire()
 		if (hci_read_remote_name(sock, &(ii + i)->bdaddr, sizeof(name), name, 0) < 0)
 			strcpy(name, addr);
 
-		device d;
-		d.address = string(addr);
-		d.name = string(name);
-		devices.push_back(d);
+		//int8_t rssi = 0;
+		//hci_read_rssi(sock, uint16_t handle, &rssi, 0);
+
+		unsigned char *p = (ii + i)->dev_class;
+		uint32_t cod = (uint32_t)(p[0] + (0x100 * (p[1] + (0x100 * p[2]))));
+
+		device dev;
+		dev.address = string(addr);
+		dev.name = string(name);
+		dev.connected = false;
+		dev.remembered = false;
+		dev.authenticated = false;
+		dev.lastSeen = 0;
+		dev.lastUsed = 0;
+		dev.deviceClass = (DeviceClass)(cod & 0x1ffc);
+		dev.majorDeviceClass = (DeviceClass)(cod & DC_Uncategorized);
+		dev.serviceClass = (ServiceClass)(cod >> 13);
+		devices.push_back(dev);
 	}
 
 	free(ii);
@@ -88,23 +96,14 @@ vector<device> DeviceINQ::Inquire()
 
 int DeviceINQ::SdpSearch(string address)
 {
-	char addressBuffer[40];
-
-	if (address.length() >= 40)
-		throw BluetoothException("Address length is invalid");
-
-	strcpy(addressBuffer, address.c_str());
-
-	// default, no channel is found
 	int channelID = -1;
-
 	uuid_t svc_uuid;
 	bdaddr_t target;
 	bdaddr_t source = { { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 } };
 	sdp_list_t *response_list = NULL, *search_list, *attrid_list;
 	sdp_session_t *session = 0;
 
-	str2ba(addressBuffer, &target);
+	str2ba(address.c_str(), &target);
 
 	// connect to the SDP server running on the remote machine
 	// session = sdp_connect(BDADDR_ANY, &target, SDP_RETRY_IF_BUSY);
@@ -148,7 +147,7 @@ int DeviceINQ::SdpSearch(string address)
 					// check the protocol attributes
 					sdp_data_t *d = (sdp_data_t*)pds->data;
 					int proto = 0;
-					
+
 					for (; d; d = d->next)
 					{
 						switch (d->dtd)

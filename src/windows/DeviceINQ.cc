@@ -5,17 +5,30 @@
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
 #define _CRT_SECURE_NO_WARNINGS
 
-
 #include <windows.h>
 #include <string>
 #include <stdlib.h>
 #include <winsock2.h>
 #include <ws2bth.h>
+#include <BluetoothAPIs.h>
 #include "../BluetoothException.h"
 #include "../DeviceINQ.h"
 #include "BluetoothHelpers.h"
 
 using namespace std;
+
+time_t ConvertTime(SYSTEMTIME *t)
+{
+	tm x;
+	x.tm_sec = t->wSecond;
+	x.tm_min = t->wMinute;
+	x.tm_hour = t->wHour;
+	x.tm_mday = t->wDay;
+	x.tm_mon = t->wMonth;
+	x.tm_year = t->wYear - 1900;
+	x.tm_isdst = 0;
+	return mktime(&x);
+}
 
 DeviceINQ *DeviceINQ::Create()
 {
@@ -86,12 +99,60 @@ vector<device> DeviceINQ::Inquire()
 					// Strip any leading and trailing parentheses is encountered
 					char strippedAddress[19] = { 0 };
 					auto sscanfResult = sscanf(address, "(" "%18[^)]" ")", strippedAddress);
-					auto addressString = sscanfResult == 1 ? std::string(strippedAddress) : std::string(address);
+					char *addr = sscanfResult == 1 ? strippedAddress : address;
+					auto addressString = std::string(addr);
 
-					device d;
-					d.address = addressString;
-					d.name = std::string(querySet->lpszServiceInstanceName);
-					devices.push_back(d);
+					int b, c, d, e, f, g;
+					sscanf(addr, "%2x:%2x:%2x:%2x:%2x:%2x", &b, &c, &d, &e, &f, &g);
+
+					BLUETOOTH_ADDRESS a = { 0 };
+					a.rgBytes[5] = b;
+					a.rgBytes[4] = c;
+					a.rgBytes[3] = d;
+					a.rgBytes[2] = e;
+					a.rgBytes[1] = f;
+					a.rgBytes[0] = g;
+
+					BLUETOOTH_DEVICE_INFO deviceInfo;
+					deviceInfo.dwSize = sizeof(BLUETOOTH_DEVICE_INFO);
+					deviceInfo.Address = a;
+					deviceInfo.ulClassofDevice = 0;
+					deviceInfo.fConnected = false;
+					deviceInfo.fRemembered = false;
+					deviceInfo.fAuthenticated = false;
+
+					auto result = BluetoothGetDeviceInfo(NULL, &deviceInfo);
+
+					device dev;
+					dev.address = addressString;
+					dev.name = std::string(querySet->lpszServiceInstanceName); // or deviceInfo.szName
+
+					if (result == ERROR_SUCCESS)
+					{
+						ULONG cod = deviceInfo.ulClassofDevice;
+
+						dev.connected = deviceInfo.fConnected ? true : false;
+						dev.remembered = deviceInfo.fRemembered ? true : false;
+						dev.authenticated = deviceInfo.fAuthenticated ? true : false;
+						dev.lastSeen = ConvertTime(&deviceInfo.stLastSeen);
+						dev.lastUsed = ConvertTime(&deviceInfo.stLastUsed);
+						dev.deviceClass = (DeviceClass)(cod & 0x1ffc);
+						dev.majorDeviceClass = (DeviceClass)(cod & DC_Uncategorized);
+						dev.serviceClass = (ServiceClass)(cod >> 13);
+					}
+					else
+					{
+						dev.connected = false;
+						dev.remembered = false;
+						dev.authenticated = false;
+						dev.lastSeen = 0;
+						dev.lastUsed = 0;
+						dev.deviceClass = DC_Miscellaneous;
+						dev.majorDeviceClass = DC_Miscellaneous;
+						dev.serviceClass = SC_None;
+					}
+
+					devices.push_back(dev);
 				}
 			}
 			else
@@ -130,7 +191,7 @@ vector<device> DeviceINQ::Inquire()
 
 	free(querySet);
 	WSALookupServiceEnd(lookupServiceHandle);
-	
+
 	return devices;
 }
 

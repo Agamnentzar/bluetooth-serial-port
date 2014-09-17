@@ -7,7 +7,8 @@ Based on <a href="https://github.com/eelcocramer/node-bluetooth-serial-port">Blu
 * CMake
 * Needs Bluetooth development packages to build
 
-`apt-get install build-essential libbluetooth-dev`
+`apt-get install libbluetooth-dev cmake gcc-c++`
+`zypper install bluez-devel cmake gcc-c++`
 
 ## Pre-request on OS X
 
@@ -55,6 +56,22 @@ Returns new instance of DeviceINQ object
 
 Returns list of bluetooth devices in range
 
+```cpp
+struct device
+{
+	string address; // bluetooth address of the device
+	string name; // name of the device
+	time_t lastSeen; // last time device was seen in the inquiry (windows, osx)
+	time_t lastUsed; // last time device was used (windows)
+	bool connected; // true if device is connected (windows, osx)
+	bool remembered; // true if device is remembered (windows, osx)
+	bool authenticated; // true if device is authenticated (windows, osx)
+	DeviceClass deviceClass; // class of device
+	DeviceClass majorDeviceClass; // major class of device
+	ServiceClass serviceClass; // service class flags
+};
+```
+
 #### DeviceINQ::SdpSearch(address)
 
 Returns serial port channelID for device at given address
@@ -91,6 +108,16 @@ Writes data to the device
 
 * __buffer__: pointer to buffer with data to send
 * __length__: number of bytes to send
+
+### Other
+
+#### GetDeviceClassString(deviceClass)
+
+Returns text representation of deviceClass enum value
+
+#### GetServiceClassString(serviceClass)
+
+Returns text representation of serviceClass enum value
 
 ## LICENSE
 

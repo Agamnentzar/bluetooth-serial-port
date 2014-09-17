@@ -1,13 +1,24 @@
 #ifndef BLUETOOTH_DEVICE_INQ_H
 #define BLUETOOTH_DEVICE_INQ_H
 
+#include "Enums.h"
+
 #include <vector>
 #include <string>
+#include <ctime>
 
 struct device
 {
 	std::string address;
 	std::string name;
+	std::time_t lastSeen;
+	std::time_t lastUsed;
+	bool connected;
+	bool remembered;
+	bool authenticated;
+	DeviceClass deviceClass;
+	DeviceClass majorDeviceClass;
+	ServiceClass serviceClass;
 };
 
 class DeviceINQ

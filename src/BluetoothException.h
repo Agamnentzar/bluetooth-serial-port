@@ -8,6 +8,7 @@
 #endif
 
 #include <exception>
+#include <string>
 
 class BluetoothException : std::exception
 {

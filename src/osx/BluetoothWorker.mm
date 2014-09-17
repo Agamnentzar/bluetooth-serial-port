@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2014, Radosław Eichler
  * Copyright (c) 2012-2013, Eelco Cramer
  * All rights reserved.
  *
@@ -373,8 +374,16 @@
 	@synchronized(self) {
 		if (inquiryProducer != NULL) {
 			device_info_t *info = new device_info_t;
-			strcpy(info->address, [[device addressString] UTF8String]);
-			strcpy(info->name, [[device name] UTF8String]);
+			info->address = [[device addressString] UTF8String];
+			info->connected = [device isConnected];
+			info->paired = [device isPaired];
+			info->favorite = [device isFavorite];
+			info->classOfDevice = [device classOfDevice];
+			info->rssi = [device rawRSSI];
+			info->lastSeen = [[device getLastInquiryUpdate] timeIntervalSince1970];
+
+			if ([device name] != nil)
+				info->name = [[device name] UTF8String];
 
 			// push the device data into the pipe to notify the main thread
 			pipe_push(inquiryProducer, info, 1);

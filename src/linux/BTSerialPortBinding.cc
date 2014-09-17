@@ -34,27 +34,19 @@ struct bluetooth_data
 	int rep[2];
 };
 
-BTSerialPortBinding *BTSerialPortBinding::Create(std::string address, int channelID)
+BTSerialPortBinding *BTSerialPortBinding::Create(string address, int channelID)
 {
 	if (channelID <= 0)
 		throw BluetoothException("ChannelID should be a positive int value");
 
-	char addressBuffer[40];
-
-	if (address.length() >= 40)
-		throw BluetoothException("Address length is invalid");
-	
-	strcpy(addressBuffer, address.c_str());
-
-	return new BTSerialPortBinding(addressBuffer, channelID);
+	return new BTSerialPortBinding(address, channelID);
 }
 
-BTSerialPortBinding::BTSerialPortBinding(char address[40], int channelID)
-	: channelID(channelID)
+BTSerialPortBinding::BTSerialPortBinding(string address, int channelID)
+	: address(address), channelID(channelID)
 {
 	data = new bluetooth_data();
 	data->s = 0;
-	strcpy(this->address, address);
 }
 
 BTSerialPortBinding::~BTSerialPortBinding()
@@ -89,7 +81,7 @@ void BTSerialPortBinding::Connect()
 	// set the connection parameters (who to connect to)
 	addr.rc_family = AF_BLUETOOTH;
 	addr.rc_channel = (uint8_t)channelID;
-	str2ba(address, &addr.rc_bdaddr);
+	str2ba(address.c_str(), &addr.rc_bdaddr);
 
 	// connect to server
 	int status = connect(data->s, (struct sockaddr *)&addr, sizeof(addr));

@@ -9,9 +9,11 @@ class BTSerialPortBinding
 {
 private:
 	bluetooth_data *data;
-	char address[40];
+	std::string address;
 	int channelID;
-	BTSerialPortBinding(char address[40], int channelID);
+	//int readTimeout;
+	//int writeTimeout;
+	BTSerialPortBinding(std::string address, int channelID);
 
 public:
 	~BTSerialPortBinding();
@@ -20,6 +22,7 @@ public:
 	void Close();
 	int Read(char *buffer, int length);
 	void Write(const char *buffer, int length);
+	//void SetTimeouts(int readTimeout, int writeTimeout);
 };
 
 #endif

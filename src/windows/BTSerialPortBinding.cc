@@ -26,12 +26,7 @@ BTSerialPortBinding *BTSerialPortBinding::Create(string address, int channelID)
 	if (channelID <= 0)
 		throw BluetoothException("ChannelID should be a positive int value");
 
-	char addressBuffer[40];
-
-	if (strcpy_s(addressBuffer, address.c_str()) != 0)
-		throw BluetoothException("Address (first argument) length is invalid");
-
-	auto obj = new BTSerialPortBinding(addressBuffer, channelID);
+	auto obj = new BTSerialPortBinding(address, channelID);
 
 	if (!obj->data->initialized)
 	{
@@ -42,10 +37,9 @@ BTSerialPortBinding *BTSerialPortBinding::Create(string address, int channelID)
 	return obj;
 }
 
-BTSerialPortBinding::BTSerialPortBinding(char address[40], int channelID)
-	: channelID(channelID)
+BTSerialPortBinding::BTSerialPortBinding(string address, int channelID)
+	: address(address), channelID(channelID)
 {
-	strcpy_s(this->address, address);
 	data = new bluetooth_data();
 	data->s = INVALID_SOCKET;
 	data->initialized = BluetoothHelpers::Initialize();
@@ -53,7 +47,7 @@ BTSerialPortBinding::BTSerialPortBinding(char address[40], int channelID)
 
 BTSerialPortBinding::~BTSerialPortBinding()
 {
-	if (data->initialized)
+	if (data && data->initialized)
 		BluetoothHelpers::Finalize();
 	delete data;
 }
@@ -69,8 +63,9 @@ void BTSerialPortBinding::Connect()
 	if (data->s != SOCKET_ERROR)
 	{
 		SOCKADDR_BTH addr = { 0 };
+
 		int addrSize = sizeof(SOCKADDR_BTH);
-		int addrErr = WSAStringToAddress(address, AF_BTH, nullptr, (LPSOCKADDR)&addr, &addrSize);
+		int addrErr = WSAStringToAddress(const_cast<char*>(address.c_str()), AF_BTH, nullptr, (LPSOCKADDR)&addr, &addrSize);
 
 		if (addrErr != SOCKET_ERROR)
 		{
@@ -96,9 +91,6 @@ void BTSerialPortBinding::Connect()
 
 void BTSerialPortBinding::Close()
 {
-	//NOTE: The address argument is currently only used in OSX.
-	//      On windows each connection is handled by a separate object.
-
 	if (data->s != INVALID_SOCKET)
 	{
 		closesocket(data->s);
@@ -123,7 +115,9 @@ int BTSerialPortBinding::Read(char *buffer, int length)
 
 	int size = -1;
 
-	if (select(static_cast<int>(data->s) + 1, &set, nullptr, nullptr, nullptr) >= 0)
+	//timeval timeout { 0, 0 };
+
+	if (select(static_cast<int>(data->s) + 1, &set, nullptr, nullptr, nullptr/*&timeout*/) >= 0)
 	{
 		if (FD_ISSET(data->s, &set))
 			size = recv(data->s, buffer, length, 0);
@@ -151,3 +145,9 @@ void BTSerialPortBinding::Write(const char *buffer, int length)
 	if (send(data->s, buffer, length, 0) != length)
 		throw BluetoothException("Writing attempt was unsuccessful");
 }
+
+//void BTSerialPortBinding::SetTimeouts(int readTimeout, int writeTimeout)
+//{
+//	this->readTimeout = readTimeout;
+//	this->writeTimeout = writeTimeout;
+//}
