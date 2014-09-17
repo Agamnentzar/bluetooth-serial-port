@@ -38,7 +38,7 @@ int main()
 
 		cout << endl << "done, found " << devices.size() << " device(s)" << endl;
 	}
-	catch (exception e)
+	catch (exception &e)
 	{
 		cout << e.what() << endl;
 	}
