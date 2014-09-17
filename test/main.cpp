@@ -1,6 +1,7 @@
 #define _CRT_SECURE_NO_WARNINGS
 
 #include <iostream>
+#include <exception>
 #include <vector>
 #include <ctime>
 #include "../src/DeviceINQ.h"
@@ -18,22 +19,29 @@ string formatDate(const char *format, time_t time)
 
 int main()
 {
-	DeviceINQ *inq = DeviceINQ::Create();
-	vector<device> devices = inq->Inquire();
-
-	for (auto it = devices.begin(); it != devices.end(); ++it)
+	try
 	{
-		cout << "\tname: " << it->name << endl;
-		cout << "\taddress: " << it->address << endl;
-		cout << "\tclass: " << GetDeviceClassString(it->deviceClass) << endl;
-		cout << "\tmajor class: " << GetDeviceClassString(it->majorDeviceClass) << endl;
-		cout << "\tservice class: " << GetServiceClassString(it->serviceClass) << endl;
-		cout << "\tlast seen: " << formatDate("%c", it->lastSeen) << endl;
-		cout << "\tlast used: " << formatDate("%c", it->lastUsed) << endl;
-		cout << endl;
-	}
+		DeviceINQ *inq = DeviceINQ::Create();
+		vector<device> devices = inq->Inquire();
 
-	cout << endl << "done, found " << devices.size() << " device(s)" << endl;
+		for (auto it = devices.begin(); it != devices.end(); ++it)
+		{
+			cout << "\tname: " << it->name << endl;
+			cout << "\taddress: " << it->address << endl;
+			cout << "\tclass: " << GetDeviceClassString(it->deviceClass) << endl;
+			cout << "\tmajor class: " << GetDeviceClassString(it->majorDeviceClass) << endl;
+			cout << "\tservice class: " << GetServiceClassString(it->serviceClass) << endl;
+			cout << "\tlast seen: " << formatDate("%c", it->lastSeen) << endl;
+			cout << "\tlast used: " << formatDate("%c", it->lastUsed) << endl;
+			cout << endl;
+		}
+
+		cout << endl << "done, found " << devices.size() << " device(s)" << endl;
+	}
+	catch (exception e)
+	{
+		cout << e.what() << endl;
+	}
 
 	return 0;
 }
