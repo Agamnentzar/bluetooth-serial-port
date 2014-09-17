@@ -6,6 +6,7 @@
 #include <ctime>
 #include "../src/DeviceINQ.h"
 #include "../src/Enums.h"
+#include "../src/BluetoothException.h"
 
 using namespace std;
 
@@ -38,7 +39,7 @@ int main()
 
 		cout << endl << "done, found " << devices.size() << " device(s)" << endl;
 	}
-	catch (exception &e)
+	catch (BluetoothException &e)
 	{
 		cout << e.what() << endl;
 	}
