@@ -7,7 +7,7 @@ Based on <a href="https://github.com/eelcocramer/node-bluetooth-serial-port">Blu
 * CMake
 * Needs Bluetooth development packages to build
 
-`apt-get install libbluetooth-dev cmake gcc-c++`
+`apt-get install libbluetooth-dev cmake gcc-c++`  
 `zypper install bluez-devel cmake gcc-c++`
 
 ## Pre-request on OS X
