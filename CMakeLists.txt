@@ -12,7 +12,6 @@ if(WIN32)
 elseif(CMAKE_SYSTEM_NAME MATCHES "Darwin") # MacOSX
 	set(srcs src/Enums.cc src/osx/BluetoothDeviceResources.mm src/osx/BluetoothWorker.mm src/osx/BTSerialPortBinding.mm src/osx/DeviceINQ.mm src/osx/pipe.c)
 	set(libs "-framework Foundation -framework IOBluetooth -fobjc-arc")
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fobjc-gc")
 	include_directories(osx)
 else()
 	set(srcs src/Enums.cc src/linux/BTSerialPortBinding.cc src/linux/DeviceINQ.cc)

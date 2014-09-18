@@ -12,6 +12,9 @@ using namespace std;
 
 string formatDate(const char *format, time_t time)
 {
+	if (time == 0)
+		return "--";
+
 	char buffer[256] = { 0 };
 	tm *timeinfo = localtime(&time);
 	strftime(buffer, sizeof(buffer), format, timeinfo);
