@@ -50,14 +50,9 @@ vector<device> DeviceINQ::Inquire()
 	if (dev_id < 0 || sock < 0)
 		throw BluetoothException("error opening socket");
 
-	int len = 8;
 	int max_rsp = 255;
-	int flags = IREQ_CACHE_FLUSH;
 	inquiry_info *ii = (inquiry_info*)malloc(max_rsp * sizeof(inquiry_info));
-	int num_rsp = hci_inquiry(dev_id, len, max_rsp, NULL, &ii, flags);
-
-	//if(num_rsp < 0)
-	//	throw BluetoothException("hci inquiry");
+	int num_rsp = hci_inquiry(dev_id, 8, max_rsp, NULL, &ii, IREQ_CACHE_FLUSH);
 
 	vector<device> devices;
 
@@ -66,8 +61,7 @@ vector<device> DeviceINQ::Inquire()
 		ba2str(&(ii + i)->bdaddr, addr);
 		memset(name, 0, sizeof(name));
 
-		if (hci_read_remote_name(sock, &(ii + i)->bdaddr, sizeof(name), name, 0) < 0)
-			strcpy(name, addr);
+		hci_read_remote_name(sock, &(ii + i)->bdaddr, sizeof(name), name, 0);
 
 		//int8_t rssi = 0;
 		//hci_read_rssi(sock, uint16_t handle, &rssi, 0);

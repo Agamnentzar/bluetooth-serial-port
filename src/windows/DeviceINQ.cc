@@ -86,6 +86,7 @@ vector<device> DeviceINQ::Inquire()
 			if (lookupServiceError != SOCKET_ERROR)
 			{
 				char address[40] = { 0 };
+				char name[248] = { 0 };
 				DWORD addressLength = _countof(address);
 				SOCKADDR_BTH *bluetoothSocketAddress = (SOCKADDR_BTH *)querySet->lpcsaBuffer->RemoteAddr.lpSockaddr;
 				BTH_ADDR bluetoothAddress = bluetoothSocketAddress->btAddr;
@@ -125,7 +126,17 @@ vector<device> DeviceINQ::Inquire()
 
 					device dev;
 					dev.address = addressString;
-					dev.name = std::string(querySet->lpszServiceInstanceName); // or deviceInfo.szName
+
+					if (querySet->lpszServiceInstanceName == NULL || strlen(querySet->lpszServiceInstanceName) == 0)
+					{
+						size_t convertedChars;
+						wcstombs_s(&convertedChars, name, sizeof(name), deviceInfo.szName, _TRUNCATE);
+						dev.name = std::string(name);
+					}
+					else
+					{
+						dev.name = std::string(querySet->lpszServiceInstanceName);
+					}
 
 					if (result == ERROR_SUCCESS)
 					{

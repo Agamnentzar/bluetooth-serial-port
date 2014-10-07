@@ -21,6 +21,22 @@ struct bluetooth_data
 
 using namespace std;
 
+string GetWSAErrorMessage()
+{
+	LPTSTR buffer;
+	int errorCode = WSAGetLastError();
+
+	if (FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+		              NULL, errorCode, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR)&buffer, 0, NULL) == 0)
+	{
+		return "Unknown";
+	}
+
+	auto result = string(buffer);
+	LocalFree(buffer);
+	return result;
+}
+
 BTSerialPortBinding *BTSerialPortBinding::Create(string address, int channelID)
 {
 	if (channelID <= 0)
@@ -64,10 +80,10 @@ void BTSerialPortBinding::Connect()
 	{
 		SOCKADDR_BTH addr = { 0 };
 
-		int addrSize = sizeof(SOCKADDR_BTH);
-		int addrErr = WSAStringToAddress(const_cast<char*>(address.c_str()), AF_BTH, nullptr, (LPSOCKADDR)&addr, &addrSize);
+		int addrSize = sizeof(SOCKADDR_BTH) - 1;
+		status = WSAStringToAddress(const_cast<char*>(address.c_str()), AF_BTH, nullptr, (LPSOCKADDR)&addr, &addrSize);
 
-		if (addrErr != SOCKET_ERROR)
+		if (status != SOCKET_ERROR)
 		{
 			addr.port = channelID;
 			status = connect(data->s, (LPSOCKADDR)&addr, addrSize);
@@ -82,10 +98,12 @@ void BTSerialPortBinding::Connect()
 
 	if (status != 0)
 	{
+		string message = GetWSAErrorMessage();
+
 		if (data->s != INVALID_SOCKET)
 			closesocket(data->s);
 
-		throw BluetoothException("Cannot connect");
+		throw BluetoothException("Cannot connect: " + message);
 	}
 }
 

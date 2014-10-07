@@ -1,6 +1,6 @@
 # Multiplatform Bluetooth serial port communication library
 
-Based on <a href="https://github.com/eelcocramer/node-bluetooth-serial-port">Bluetooth serial port communication for Node.js</a>
+Based on [Bluetooth serial port communication for Node.js](https://github.com/eelcocramer/node-bluetooth-serial-port)
 
 ## Pre-requests on Linux
 
