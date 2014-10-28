@@ -32,12 +32,12 @@ using namespace std;
 
 void main()
 {
-	DeviceINQ *inq = DeviceINQ::Create();
+	unique_ptr<DeviceINQ> inq(DeviceINQ::Create());
 	vector<device> devices = inq->Inquire();
 
-	for (auto it = devices.begin(); it != devices.end(); ++it)
+	for (const auto& d : devices)
 	{
-		cout << it->name << " " << it->address << endl;
+		cout << d.name << " " << d.address << endl;
 	}
 
 	cout << endl << "done, found " << devices.size() << " device(s)" << endl;

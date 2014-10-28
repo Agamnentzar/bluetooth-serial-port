@@ -1,5 +1,4 @@
-#ifndef BLUETOOTH_ENUMS_H
-#define BLUETOOTH_ENUMS_H
+#pragma once
 
 #include <string>
 
@@ -108,5 +107,3 @@ enum ServiceClass
 
 std::string GetDeviceClassString(DeviceClass deviceClass);
 std::string GetServiceClassString(ServiceClass serviceClass);
-
-#endif

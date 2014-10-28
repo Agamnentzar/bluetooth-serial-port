@@ -1,5 +1,4 @@
-#ifndef BLUETOOTH_EXCEPTION_H
-#define BLUETOOTH_EXCEPTION_H
+#pragma once
 
 #ifndef _MSC_VER
 #define NOEXCEPT noexcept
@@ -26,5 +25,3 @@ public:
 		return message.c_str();
 	}
 };
-
-#endif

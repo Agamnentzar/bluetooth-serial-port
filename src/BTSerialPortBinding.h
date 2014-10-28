@@ -1,14 +1,14 @@
-#ifndef BLUETOOTH_SERIAL_PORT_BINDING_H
-#define BLUETOOTH_SERIAL_PORT_BINDING_H
+#pragma once
 
 #include <string>
+#include <memory>
 
 struct bluetooth_data;
 
 class BTSerialPortBinding
 {
 private:
-	bluetooth_data *data;
+	std::unique_ptr<bluetooth_data> data;
 	std::string address;
 	int channelID;
 	//int readTimeout;
@@ -24,5 +24,3 @@ public:
 	void Write(const char *buffer, int length);
 	//void SetTimeouts(int readTimeout, int writeTimeout);
 };
-
-#endif

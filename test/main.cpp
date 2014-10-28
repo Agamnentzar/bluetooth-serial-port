@@ -3,6 +3,7 @@
 #include <iostream>
 #include <exception>
 #include <vector>
+#include <memory>
 #include <ctime>
 #include "../src/DeviceINQ.h"
 #include "../src/Enums.h"
@@ -28,24 +29,24 @@ int main()
 {
 	try
 	{
-		DeviceINQ *inq = DeviceINQ::Create();
+		unique_ptr<DeviceINQ> inq(DeviceINQ::Create());
 		vector<device> devices = inq->Inquire();
 
-		for (auto it = devices.begin(); it != devices.end(); ++it)
+		for (const auto& d : devices)
 		{
-			cout << "\tname: " << it->name << endl;
-			cout << "\taddress: " << it->address << endl;
-			cout << "\tclass: " << GetDeviceClassString(it->deviceClass) << endl;
-			cout << "\tmajor class: " << GetDeviceClassString(it->majorDeviceClass) << endl;
-			cout << "\tservice class: " << GetServiceClassString(it->serviceClass) << endl;
-			cout << "\tlast seen: " << formatDate("%c", it->lastSeen) << endl;
-			cout << "\tlast used: " << formatDate("%c", it->lastUsed) << endl;
+			cout << "\tname: " << d.name << endl;
+			cout << "\taddress: " << d.address << endl;
+			cout << "\tclass: " << GetDeviceClassString(d.deviceClass) << endl;
+			cout << "\tmajor class: " << GetDeviceClassString(d.majorDeviceClass) << endl;
+			cout << "\tservice class: " << GetServiceClassString(d.serviceClass) << endl;
+			cout << "\tlast seen: " << formatDate("%c", d.lastSeen) << endl;
+			cout << "\tlast used: " << formatDate("%c", d.lastUsed) << endl;
 			cout << endl;
 		}
 
 		cout << endl << "done, found " << devices.size() << " device(s)" << endl;
 	}
-	catch (BluetoothException &e)
+	catch (BluetoothException& e)
 	{
 		cout << e.what() << endl;
 	}

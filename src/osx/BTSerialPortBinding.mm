@@ -41,15 +41,13 @@ BTSerialPortBinding *BTSerialPortBinding::Create(string address, int channelID)
 }
 
 BTSerialPortBinding::BTSerialPortBinding(string address, int channelID)
-	: address(address), channelID(channelID) 
+	: address(address), channelID(channelID), data(new bluetooth_data())
 {
-	data = new bluetooth_data();
 	data->consumer = NULL;
 }
 
 BTSerialPortBinding::~BTSerialPortBinding()
 {
-	delete data;
 }
 
 void BTSerialPortBinding::Connect()

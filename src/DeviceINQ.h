@@ -1,8 +1,6 @@
-#ifndef BLUETOOTH_DEVICE_INQ_H
-#define BLUETOOTH_DEVICE_INQ_H
+#pragma once
 
 #include "Enums.h"
-
 #include <vector>
 #include <string>
 #include <ctime>
@@ -35,5 +33,3 @@ public:
 	std::vector<device> Inquire();
 	int SdpSearch(std::string address);
 };
-
-#endif
