@@ -21,22 +21,6 @@ struct bluetooth_data
 
 using namespace std;
 
-string GetWSAErrorMessage()
-{
-	LPTSTR buffer;
-	int errorCode = WSAGetLastError();
-
-	if (FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-		              NULL, errorCode, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR)&buffer, 0, NULL) == 0)
-	{
-		return "Unknown";
-	}
-
-	auto result = string(buffer);
-	LocalFree(buffer);
-	return result;
-}
-
 BTSerialPortBinding *BTSerialPortBinding::Create(string address, int channelID)
 {
 	if (channelID <= 0)
@@ -96,7 +80,7 @@ void BTSerialPortBinding::Connect()
 
 	if (status != 0)
 	{
-		string message = GetWSAErrorMessage();
+		string message = BluetoothHelpers::GetWSAErrorMessage();
 
 		if (data->s != INVALID_SOCKET)
 			closesocket(data->s);
