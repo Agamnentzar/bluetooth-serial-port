@@ -61,8 +61,7 @@ void BTSerialPortBinding::Connect()
 	if (data->s != SOCKET_ERROR)
 	{
 		SOCKADDR_BTH addr = { 0 };
-
-		int addrSize = sizeof(SOCKADDR_BTH) - 1;
+		int addrSize = sizeof(SOCKADDR_BTH);
 		status = WSAStringToAddress(const_cast<char*>(address.c_str()), AF_BTH, nullptr, (LPSOCKADDR)&addr, &addrSize);
 
 		if (status != SOCKET_ERROR)

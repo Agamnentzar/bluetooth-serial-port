@@ -46,7 +46,7 @@ int main()
 
 		cout << endl << "done, found " << devices.size() << " device(s)" << endl;
 	}
-	catch (BluetoothException& e)
+	catch (const BluetoothException& e)
 	{
 		cout << e.what() << endl;
 	}
