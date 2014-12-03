@@ -79,7 +79,7 @@ void BTSerialPortBinding::Connect()
 
 	if (status != 0)
 	{
-		string message = BluetoothHelpers::GetWSAErrorMessage();
+		string message = BluetoothHelpers::GetWSAErrorMessage(WSAGetLastError());
 
 		if (data->s != INVALID_SOCKET)
 			closesocket(data->s);

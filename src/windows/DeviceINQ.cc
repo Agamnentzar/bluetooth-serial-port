@@ -80,8 +80,15 @@ vector<device> DeviceINQ::Inquire()
 	int lookupServiceError = WSALookupServiceBegin(querySet.get(), flags, &lookupServiceHandle);
 	vector<device> devices;
 
+	int errorCode = WSAGetLastError();
+
 	if (lookupServiceError == SOCKET_ERROR)
-		throw BluetoothException(BluetoothHelpers::GetWSAErrorMessage());
+	{
+		if (errorCode == WSASERVICE_NOT_FOUND)
+			return devices;
+		else
+			throw BluetoothException(BluetoothHelpers::GetWSAErrorMessage(errorCode));
+	}
 
 	// Iterate over each found bluetooth service
 	bool inquiryComplete = false;
@@ -234,7 +241,7 @@ int DeviceINQ::SdpSearch(string address)
 	int channelID = -1;
 
 	if (lookupServiceError == SOCKET_ERROR)
-		throw BluetoothException(BluetoothHelpers::GetWSAErrorMessage());
+		throw BluetoothException(BluetoothHelpers::GetWSAErrorMessage(WSAGetLastError()));
 
 	// Iterate over each found bluetooth service
 	bool inquiryComplete = false;

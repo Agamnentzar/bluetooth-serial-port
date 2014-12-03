@@ -26,10 +26,9 @@ void BluetoothHelpers::Finalize()
 	WSACleanup();
 }
 
-string BluetoothHelpers::GetWSAErrorMessage()
+string BluetoothHelpers::GetWSAErrorMessage(int errorCode)
 {
 	LPTSTR buffer;
-	int errorCode = WSAGetLastError();
 
 	if (FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
 		NULL, errorCode, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR)&buffer, 0, NULL) == 0)
