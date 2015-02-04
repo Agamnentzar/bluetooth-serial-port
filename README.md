@@ -33,6 +33,7 @@ On Windows use the Visual Studio Project files or NMake.
 ## Test
 
 `make inquiretest`
+`make inquiretest_c`
 
 ## Basic usage
 
@@ -132,6 +133,10 @@ Returns text representation of deviceClass enum value
 #### GetServiceClassString(serviceClass)
 
 Returns text representation of serviceClass enum value
+
+## Acknowledgements
+
+C API is based on the C API implemented in https://github.com/libspatialindex/libspatialindex
 
 ## LICENSE
 
