@@ -1,5 +1,7 @@
 #include <winsock2.h>
 #include <ws2bth.h>
+#include <string>
+#include <codecvt>
 #include "BluetoothHelpers.h"
 
 using namespace std;
@@ -37,8 +39,18 @@ string BluetoothHelpers::GetWSAErrorMessage(int errorCode)
 	}
 
 	char buff[20];
-	auto result = string(buffer);
+	auto result = ToString(buffer);
 	LocalFree(buffer);
 	_itoa_s(errorCode, buff, sizeof(buff), 10);
 	return string("(") + buff + string(") ") + result;
+}
+
+string BluetoothHelpers::ToString(LPTSTR str)
+{
+#ifdef UNICODE
+	std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
+	return converter.to_bytes(wstring(str));
+#else
+	retur string(str);
+#endif
 }

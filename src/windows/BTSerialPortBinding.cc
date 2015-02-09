@@ -62,7 +62,15 @@ void BTSerialPortBinding::Connect()
 	{
 		SOCKADDR_BTH addr = { 0 };
 		int addrSize = sizeof(SOCKADDR_BTH);
-		status = WSAStringToAddress(const_cast<char*>(address.c_str()), AF_BTH, nullptr, (LPSOCKADDR)&addr, &addrSize);
+		TCHAR addressBuffer[40];
+
+		if (address.length() >= 40)
+			throw BluetoothException("Address length is invalid");
+
+		for (size_t i = 0; i < address.length(); i++)
+			addressBuffer[i] = (TCHAR)address[i];
+
+		status = WSAStringToAddress(addressBuffer, AF_BTH, nullptr, (LPSOCKADDR)&addr, &addrSize);
 
 		if (status != SOCKET_ERROR)
 		{
