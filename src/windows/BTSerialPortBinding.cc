@@ -70,6 +70,8 @@ void BTSerialPortBinding::Connect()
 		for (size_t i = 0; i < address.length(); i++)
 			addressBuffer[i] = (TCHAR)address[i];
 
+		addressBuffer[address.length()] = 0;
+
 		status = WSAStringToAddress(addressBuffer, AF_BTH, nullptr, (LPSOCKADDR)&addr, &addrSize);
 
 		if (status != SOCKET_ERROR)

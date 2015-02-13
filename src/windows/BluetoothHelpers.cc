@@ -48,7 +48,7 @@ string BluetoothHelpers::GetWSAErrorMessage(int errorCode)
 string BluetoothHelpers::ToString(LPTSTR str)
 {
 #ifdef UNICODE
-	std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
+	wstring_convert<codecvt_utf8<wchar_t>, wchar_t> converter;
 	return converter.to_bytes(wstring(str));
 #else
 	retur string(str);
