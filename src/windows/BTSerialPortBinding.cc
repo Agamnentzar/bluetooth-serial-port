@@ -131,7 +131,7 @@ int BTSerialPortBinding::Read(char *buffer, int length)
 		if (FD_ISSET(data->s, &set))
 			size = recv(data->s, buffer, length, 0);
 		else // when no data is read from rfcomm the connection has been closed.
-			size = 0; // TODO: throw ???
+			size = 0; // TODO: throw ?
 	}
 
 	if (size < 0)
@@ -153,6 +153,16 @@ void BTSerialPortBinding::Write(const char *buffer, int length)
 
 	if (send(data->s, buffer, length, 0) != length)
 		throw BluetoothException("Writing attempt was unsuccessful");
+}
+
+bool BTSerialPortBinding::IsDataAvailable()
+{
+	if (data->s == INVALID_SOCKET)
+		throw BluetoothException("connection has been closed");
+
+	u_long count;
+	ioctlsocket(data->s, FIONREAD, &count);
+	return count > 0;
 }
 
 //void BTSerialPortBinding::SetTimeouts(int readTimeout, int writeTimeout)

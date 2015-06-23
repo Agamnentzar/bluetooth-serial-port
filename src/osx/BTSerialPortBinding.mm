@@ -122,3 +122,8 @@ void BTSerialPortBinding::Write(const char *buffer, int length)
 
     [pool release];
 }
+
+bool BTSerialPortBinding::IsDataAvailable()
+{
+	return false;
+}

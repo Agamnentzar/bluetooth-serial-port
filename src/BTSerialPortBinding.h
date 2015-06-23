@@ -22,5 +22,6 @@ public:
 	void Close();
 	int Read(char *buffer, int length);
 	void Write(const char *buffer, int length);
+	bool IsDataAvailable();
 	//void SetTimeouts(int readTimeout, int writeTimeout);
 };
