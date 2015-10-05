@@ -11,7 +11,7 @@
 #include <winsock2.h>
 #include <ws2bth.h>
 #include <memory>
-#include <BluetoothAPIs.h>
+#include <bluetoothapis.h>
 #include "../BluetoothException.h"
 #include "../DeviceINQ.h"
 #include "BluetoothHelpers.h"
