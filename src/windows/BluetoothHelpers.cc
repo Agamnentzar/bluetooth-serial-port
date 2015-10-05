@@ -51,6 +51,6 @@ string BluetoothHelpers::ToString(LPTSTR str)
 	wstring_convert<codecvt_utf8<wchar_t>, wchar_t> converter;
 	return converter.to_bytes(wstring(str));
 #else
-	retur string(str);
+	return string(str);
 #endif
 }
