@@ -16,6 +16,12 @@
 #include "../DeviceINQ.h"
 #include "BluetoothHelpers.h"
 
+#ifdef UNICODE
+#define tscanf swscanf
+#else
+#define tscanf sscanf
+#endif
+
 using namespace std;
 
 struct free_delete
@@ -80,8 +86,15 @@ vector<device> DeviceINQ::Inquire()
 	int lookupServiceError = WSALookupServiceBegin(querySet.get(), flags, &lookupServiceHandle);
 	vector<device> devices;
 
+	int errorCode = WSAGetLastError();
+
 	if (lookupServiceError == SOCKET_ERROR)
-		throw BluetoothException(BluetoothHelpers::GetWSAErrorMessage());
+	{
+		if (errorCode == WSASERVICE_NOT_FOUND)
+			return devices;
+		else
+			throw BluetoothException(BluetoothHelpers::GetWSAErrorMessage(errorCode));
+	}
 
 	// Iterate over each found bluetooth service
 	bool inquiryComplete = false;
@@ -93,12 +106,12 @@ vector<device> DeviceINQ::Inquire()
 
 		if (lookupServiceError != SOCKET_ERROR)
 		{
-			char address[40] = { 0 };
+			TCHAR address[40] = { 0 };
 			char name[248] = { 0 };
 			DWORD addressLength = _countof(address);
 			SOCKADDR_BTH *bluetoothSocketAddress = (SOCKADDR_BTH *)querySet->lpcsaBuffer->RemoteAddr.lpSockaddr;
 			BTH_ADDR bluetoothAddress = bluetoothSocketAddress->btAddr;
-
+			
 			// Emit the corresponding event if we were able to retrieve the address
 			int addressToStringError = WSAAddressToString(
 				querySet->lpcsaBuffer->RemoteAddr.lpSockaddr, sizeof(SOCKADDR_BTH), nullptr, address, &addressLength);
@@ -106,13 +119,13 @@ vector<device> DeviceINQ::Inquire()
 			if (addressToStringError != SOCKET_ERROR)
 			{
 				// Strip any leading and trailing parentheses is encountered
-				char strippedAddress[19] = { 0 };
-				auto sscanfResult = sscanf(address, "(" "%18[^)]" ")", strippedAddress);
-				char *addr = sscanfResult == 1 ? strippedAddress : address;
-				auto addressString = std::string(addr);
+				TCHAR strippedAddress[19] = { 0 };
+				auto sscanfResult = tscanf(address, TEXT("(%18[^)])"), strippedAddress);
+				TCHAR *addr = sscanfResult == 1 ? strippedAddress : address;
+				auto addressString = BluetoothHelpers::ToString(addr);
 
 				int b, c, d, e, f, g;
-				sscanf(addr, "%2x:%2x:%2x:%2x:%2x:%2x", &b, &c, &d, &e, &f, &g);
+				tscanf(addr, TEXT("%2x:%2x:%2x:%2x:%2x:%2x"), &b, &c, &d, &e, &f, &g);
 
 				BLUETOOTH_ADDRESS a = { 0 };
 				a.rgBytes[5] = b;
@@ -135,7 +148,7 @@ vector<device> DeviceINQ::Inquire()
 				device dev;
 				dev.address = addressString;
 
-				if (querySet->lpszServiceInstanceName == NULL || strlen(querySet->lpszServiceInstanceName) == 0)
+				if (querySet->lpszServiceInstanceName == NULL || lstrlen(querySet->lpszServiceInstanceName) == 0)
 				{
 					size_t convertedChars;
 					wcstombs_s(&convertedChars, name, sizeof(name), deviceInfo.szName, _TRUNCATE);
@@ -143,7 +156,7 @@ vector<device> DeviceINQ::Inquire()
 				}
 				else
 				{
-					dev.name = std::string(querySet->lpszServiceInstanceName);
+					dev.name = BluetoothHelpers::ToString(querySet->lpszServiceInstanceName);
 				}
 
 				if (result == ERROR_SUCCESS)
@@ -216,10 +229,13 @@ int DeviceINQ::SdpSearch(string address)
 	if (querySet == nullptr)
 		throw BluetoothException("Out of memory: Unable to allocate memory resource for sdp search");
 
-	char addressBuffer[40];
+	TCHAR addressBuffer[40];
 
-	if (strcpy_s(addressBuffer, address.c_str()) != 0)
-		throw BluetoothException("Address (first argument) length is invalid");
+	if (address.length() >= 40)
+		throw BluetoothException("Address length is invalid");
+
+	for (size_t i = 0; i < address.length(); i++)
+		addressBuffer[i] = (TCHAR)address[i];
 
 	ZeroMemory(querySet.get(), querySetSize);
 	querySet->dwSize = querySetSize;
@@ -234,7 +250,7 @@ int DeviceINQ::SdpSearch(string address)
 	int channelID = -1;
 
 	if (lookupServiceError == SOCKET_ERROR)
-		throw BluetoothException(BluetoothHelpers::GetWSAErrorMessage());
+		throw BluetoothException(BluetoothHelpers::GetWSAErrorMessage(WSAGetLastError()));
 
 	// Iterate over each found bluetooth service
 	bool inquiryComplete = false;

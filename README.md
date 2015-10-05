@@ -26,6 +26,7 @@ Based on [Bluetooth serial port communication for Node.js](https://github.com/ee
 ```cpp
 #include <iostream>
 #include <vector>
+#include <memory>
 #include "../src/DeviceINQ.h"
 
 using namespace std;

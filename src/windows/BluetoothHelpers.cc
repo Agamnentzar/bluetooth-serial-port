@@ -1,5 +1,7 @@
 #include <winsock2.h>
 #include <ws2bth.h>
+#include <string>
+#include <codecvt>
 #include "BluetoothHelpers.h"
 
 using namespace std;
@@ -26,10 +28,9 @@ void BluetoothHelpers::Finalize()
 	WSACleanup();
 }
 
-string BluetoothHelpers::GetWSAErrorMessage()
+string BluetoothHelpers::GetWSAErrorMessage(int errorCode)
 {
 	LPTSTR buffer;
-	int errorCode = WSAGetLastError();
 
 	if (FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
 		NULL, errorCode, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR)&buffer, 0, NULL) == 0)
@@ -38,8 +39,18 @@ string BluetoothHelpers::GetWSAErrorMessage()
 	}
 
 	char buff[20];
-	auto result = string(buffer);
+	auto result = ToString(buffer);
 	LocalFree(buffer);
 	_itoa_s(errorCode, buff, sizeof(buff), 10);
 	return string("(") + buff + string(") ") + result;
+}
+
+string BluetoothHelpers::ToString(LPTSTR str)
+{
+#ifdef UNICODE
+	wstring_convert<codecvt_utf8<wchar_t>, wchar_t> converter;
+	return converter.to_bytes(wstring(str));
+#else
+	retur string(str);
+#endif
 }

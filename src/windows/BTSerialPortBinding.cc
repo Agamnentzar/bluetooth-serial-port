@@ -62,7 +62,17 @@ void BTSerialPortBinding::Connect()
 	{
 		SOCKADDR_BTH addr = { 0 };
 		int addrSize = sizeof(SOCKADDR_BTH);
-		status = WSAStringToAddress(const_cast<char*>(address.c_str()), AF_BTH, nullptr, (LPSOCKADDR)&addr, &addrSize);
+		TCHAR addressBuffer[40];
+
+		if (address.length() >= 40)
+			throw BluetoothException("Address length is invalid");
+
+		for (size_t i = 0; i < address.length(); i++)
+			addressBuffer[i] = (TCHAR)address[i];
+
+		addressBuffer[address.length()] = 0;
+
+		status = WSAStringToAddress(addressBuffer, AF_BTH, nullptr, (LPSOCKADDR)&addr, &addrSize);
 
 		if (status != SOCKET_ERROR)
 		{
@@ -79,7 +89,7 @@ void BTSerialPortBinding::Connect()
 
 	if (status != 0)
 	{
-		string message = BluetoothHelpers::GetWSAErrorMessage();
+		string message = BluetoothHelpers::GetWSAErrorMessage(WSAGetLastError());
 
 		if (data->s != INVALID_SOCKET)
 			closesocket(data->s);
@@ -121,7 +131,7 @@ int BTSerialPortBinding::Read(char *buffer, int length)
 		if (FD_ISSET(data->s, &set))
 			size = recv(data->s, buffer, length, 0);
 		else // when no data is read from rfcomm the connection has been closed.
-			size = 0; // TODO: throw ???
+			size = 0; // TODO: throw ?
 	}
 
 	if (size < 0)
@@ -143,6 +153,16 @@ void BTSerialPortBinding::Write(const char *buffer, int length)
 
 	if (send(data->s, buffer, length, 0) != length)
 		throw BluetoothException("Writing attempt was unsuccessful");
+}
+
+bool BTSerialPortBinding::IsDataAvailable()
+{
+	if (data->s == INVALID_SOCKET)
+		throw BluetoothException("connection has been closed");
+
+	u_long count;
+	ioctlsocket(data->s, FIONREAD, &count);
+	return count > 0;
 }
 
 //void BTSerialPortBinding::SetTimeouts(int readTimeout, int writeTimeout)
