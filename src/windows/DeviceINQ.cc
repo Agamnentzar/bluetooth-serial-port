@@ -66,7 +66,7 @@ DeviceINQ::~DeviceINQ()
 		BluetoothHelpers::Finalize();
 }
 
-vector<device> DeviceINQ::Inquire()
+vector<device> DeviceINQ::Inquire(bool ignoreNoBluetooth)
 {
 	// Construct windows socket bluetooth variables
 	DWORD flags = LUP_CONTAINERS | LUP_FLUSHCACHE | LUP_RETURN_NAME | LUP_RETURN_ADDR;
@@ -90,10 +90,14 @@ vector<device> DeviceINQ::Inquire()
 
 	if (lookupServiceError == SOCKET_ERROR)
 	{
-		if (errorCode == WSASERVICE_NOT_FOUND)
-			return devices;
-		else
+		if (errorCode == WSASERVICE_NOT_FOUND) {
+			if (ignoreNoBluetooth)
+				return devices;
+			else
+				throw BluetoothException("No Bluetooth device");
+		} else {
 			throw BluetoothException(BluetoothHelpers::GetWSAErrorMessage(errorCode));
+		}
 	}
 
 	// Iterate over each found bluetooth service

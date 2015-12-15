@@ -40,7 +40,7 @@ DeviceINQ::~DeviceINQ()
 {
 }
 
-vector<device> DeviceINQ::Inquire()
+vector<device> DeviceINQ::Inquire(bool ignoreNoBluetooth)
 {
 	char addr[19] = { 0 };
 	char name[248] = { 0 };

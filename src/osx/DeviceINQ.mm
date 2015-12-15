@@ -41,7 +41,7 @@ DeviceINQ::~DeviceINQ()
 {
 }
 
-vector<device> DeviceINQ::Inquire()
+vector<device> DeviceINQ::Inquire(bool ignoreNoBluetooth)
 {
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
     BluetoothWorker *worker = [BluetoothWorker getInstance];
