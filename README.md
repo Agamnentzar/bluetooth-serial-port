@@ -2,7 +2,7 @@
 
 Based on [Bluetooth serial port communication for Node.js](https://github.com/eelcocramer/node-bluetooth-serial-port)
 
-## Pre-requests on Linux
+## Prequisites on Linux
 
 * CMake
 * Needs Bluetooth development packages to build
@@ -10,12 +10,12 @@ Based on [Bluetooth serial port communication for Node.js](https://github.com/ee
 `apt-get install libbluetooth-dev cmake gcc-c++`  
 `zypper install bluez-devel cmake gcc-c++`
 
-## Pre-request on OS X
+## Prequisites on OS X
 
 * CMake from MacPorts
 * Needs XCode and XCode command line tools installed.
 
-## Pre-request on Windows
+## Prequisites on Windows
 
 * CMake
 

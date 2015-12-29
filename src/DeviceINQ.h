@@ -30,6 +30,6 @@ private:
 public:
 	~DeviceINQ();
 	static DeviceINQ *Create();
-	std::vector<device> Inquire(bool ignoreNoBluetooth = true);
+	std::vector<device> Inquire();
 	int SdpSearch(std::string address);
 };
