@@ -2,7 +2,7 @@
 
 Based on [Bluetooth serial port communication for Node.js](https://github.com/eelcocramer/node-bluetooth-serial-port)
 
-## Pre-requests on Linux
+## Prequisites on Linux
 
 * CMake
 * Needs Bluetooth development packages to build
@@ -10,16 +10,30 @@ Based on [Bluetooth serial port communication for Node.js](https://github.com/ee
 `apt-get install libbluetooth-dev cmake gcc-c++`  
 `zypper install bluez-devel cmake gcc-c++`
 
-## Pre-request on OS X
+## Prequisites on OS X
 
 * CMake from MacPorts
 * Needs XCode and XCode command line tools installed.
 
-## Pre-request on Windows
+## Prequisite on Windows
 
 * CMake
 
 # Documentation
+
+## Build
+
+`mkdir build`
+`cd build`
+`cmake ..`
+`make`
+
+On Windows use the Visual Studio Project files or NMake.
+
+## Test
+
+`make inquiretest`
+`make inquiretest_c`
 
 ## Basic usage
 
@@ -119,6 +133,10 @@ Returns text representation of deviceClass enum value
 #### GetServiceClassString(serviceClass)
 
 Returns text representation of serviceClass enum value
+
+## Acknowledgements
+
+C API is based on the C API implemented in https://github.com/libspatialindex/libspatialindex
 
 ## LICENSE
 
