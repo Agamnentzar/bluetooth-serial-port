@@ -41,6 +41,7 @@ int main()
 			cout << "\tservice class: " << GetServiceClassString(d.serviceClass) << endl;
 			cout << "\tlast seen: " << formatDate("%c", d.lastSeen) << endl;
 			cout << "\tlast used: " << formatDate("%c", d.lastUsed) << endl;
+			cout << "\tchannel ID: " << inq->SdpSearch(d.address) << endl;
 			cout << endl;
 		}
 

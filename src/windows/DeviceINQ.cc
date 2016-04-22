@@ -238,6 +238,8 @@ int DeviceINQ::SdpSearch(string address)
 	for (size_t i = 0; i < address.length(); i++)
 		addressBuffer[i] = (TCHAR)address[i];
 
+	addressBuffer[address.length()] = 0;
+
 	ZeroMemory(querySet.get(), querySetSize);
 	querySet->dwSize = querySetSize;
 	querySet->dwNameSpace = NS_BTH;

@@ -7,3 +7,5 @@
 *.vcxproj
 *.filters
 *.user
+*.db
+*.opendb
