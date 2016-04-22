@@ -1,7 +1,7 @@
 language: cpp
 
 before_install:
-  - "sudo apt-get install libbluetooth-dev cmake gcc-c++"
+  - sudo apt-get install libbluetooth-dev cmake gcc
 
 compiler:
   - gcc
