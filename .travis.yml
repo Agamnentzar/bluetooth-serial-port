@@ -1,0 +1,13 @@
+language: cpp
+
+install: libbluetooth-dev cmake gcc-c++
+
+compiler:
+  - gcc
+
+before_script:
+  - mkdir build
+  - cd build
+  - cmake ..
+
+script: make
