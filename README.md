@@ -18,6 +18,7 @@ Based on [Bluetooth serial port communication for Node.js](https://github.com/ee
 ## Prequisites on Windows
 
 * CMake
+* Visual Studio
 
 # Documentation
 
@@ -109,6 +110,11 @@ Writes data to the device
 
 * __buffer__: pointer to buffer with data to send
 * __length__: number of bytes to send
+
+#### BTSerialPortBinding::IsDataAvailable(buffer, length)
+
+Returns true if there is data in the buffer ready to be read
+(not implemented for OSX - always returns false)
 
 ### Other
 
