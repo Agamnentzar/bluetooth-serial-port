@@ -9,3 +9,7 @@
 *.user
 *.db
 *.opendb
+# Ignore files created when used as an external module in an autotools project
+.deps/
+.dirstamp
+*.o
