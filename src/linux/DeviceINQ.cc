@@ -4,6 +4,8 @@
 #include "BluetoothException.h"
 #include "DeviceINQ.h"
 
+#include <iostream>
+
 extern "C"{
 #include <stdio.h>
 #include <errno.h>
@@ -97,6 +99,7 @@ int DeviceINQ::SdpSearch(string address)
 	sdp_list_t *response_list = NULL, *search_list, *attrid_list;
 	sdp_session_t *session = 0;
 
+  std::cout << "Search started on address " << address << std::endl;
 	str2ba(address.c_str(), &target);
 
 	// connect to the SDP server running on the remote machine
@@ -171,7 +174,6 @@ int DeviceINQ::SdpSearch(string address)
 
 		sdp_record_free(rec);
 	}
-
 	sdp_close(session);
 	return channelID;
 }
