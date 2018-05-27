@@ -67,8 +67,9 @@ DeviceINQ::~DeviceINQ()
 		BluetoothHelpers::Finalize();
 }
 
-vector<device> DeviceINQ::Inquire()
+vector<device> DeviceINQ::Inquire(int length)
 {
+  (void)(length);
 	// Construct windows socket bluetooth variables
 	DWORD flags = LUP_CONTAINERS | LUP_FLUSHCACHE | LUP_RETURN_NAME | LUP_RETURN_ADDR;
 	DWORD querySetSize = sizeof(WSAQUERYSET);
