@@ -80,6 +80,10 @@ Returns serial port channelID for device at given address
 
 * __address__: string containing bluetooth address of the device
 
+```
+Note: This method seems to fail on Windows, use value 1 for channelID instead
+```
+
 ### BTSerialPortBinding
 
 #### BTSerialPortBinding::Create(address, channelID)
@@ -88,6 +92,10 @@ Returns new instance of BTSerialPortBinding object
 
 * __address__: string containint bluetooth address of the device
 * __channelID__: ID of the serial port channel
+
+```
+Note: channelID should be always 1 for serial port
+```
 
 #### BTSerialPortBinding::Connect()
 
