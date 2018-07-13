@@ -21,8 +21,13 @@ endif()
 
 include_directories(./src)
 
-add_library(bluetoothserialport SHARED ${srcs})
+add_library(bluetoothserialport ${srcs})
 add_executable(inquiretest EXCLUDE_FROM_ALL test/main.cpp)
+
+set_target_properties(bluetoothserialport
+PROPERTIES
+	POSITION_INDEPENDENT_CODE ON
+)
 
 target_link_libraries(bluetoothserialport ${libs})
 target_link_libraries(inquiretest bluetoothserialport)
