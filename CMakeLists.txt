@@ -42,9 +42,9 @@ endif()
 
 # Platform-specific compile flags
 if (${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU") # G++
-    target_compile_options(bluetoothserialport PUBLIC -Wall -Wextra)
+    target_compile_options(bluetoothserialport PRIVATE -Wall -Wextra)
 elseif(${CMAKE_CXX_COMPILER_ID} STREQUAL "MSVC") # MSVC
-    target_compile_options(bluetoothserialport PUBLIC /EHsc /W2 /c)
+    target_compile_options(bluetoothserialport PRIVATE /EHsc /W2 /c)
 endif()
 
 target_include_directories(bluetoothserialport
