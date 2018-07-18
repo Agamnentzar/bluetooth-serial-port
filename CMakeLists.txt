@@ -9,7 +9,7 @@ PRIVATE
 	${CMAKE_CURRENT_SOURCE_DIR}/src/Enums.cc
 )
 
-if(WIN32)
+if(WIN32) # windows
 	set(PLATFORM windows)
 	target_sources(bluetoothserialport
 	PRIVATE
@@ -38,6 +38,13 @@ else() # Linux
 		${CMAKE_CURRENT_SOURCE_DIR}/src/linux/DeviceINQ.cc
 	)
 	target_link_libraries(bluetoothserialport bluetooth)
+endif()
+
+# Platform-specific compile flags
+if (${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU") # G++
+    target_compile_options(bluetoothserialport PUBLIC -Wall -Wextra)
+elseif(${CMAKE_CXX_COMPILER_ID} STREQUAL "MSVC") # MSVC
+    target_compile_options(bluetoothserialport PUBLIC /EHsc /W2 /c)
 endif()
 
 target_include_directories(bluetoothserialport
