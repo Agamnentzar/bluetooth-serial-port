@@ -1,33 +1,55 @@
 project(bluetoothserialport)
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.1)
 
-if (NOT MSVC)
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++11")
-endif()
+set (CMAKE_CXX_STANDARD 11)
+
+add_library(bluetoothserialport)
 
 if(WIN32)
-	set(srcs src/Enums.cc src/windows/BluetoothHelpers.cc src/windows/BTSerialPortBinding.cc src/windows/DeviceINQ.cc)
-	include_directories(windows)
-	set(libs ws2_32 bthprops)
+	target_sources(bluetoothserialport
+	PRIVATE
+		${CMAKE_CURRENT_SOURCE_DIR}/src/windows/BluetoothHelpers.cc
+		${CMAKE_CURRENT_SOURCE_DIR}/src/windows/BTSerialPortBinding.cc
+		${CMAKE_CURRENT_SOURCE_DIR}/src/windows/DeviceINQ.cc
+	)
+	target_include_directories(bluetoothserialport
+	PRIVATE
+		${CMAKE_CURRENT_SOURCE_DIR}/src/windows
+	)
+	target_link_libraries(bluetoothserialport ws2_32 bthprops)
+
 elseif(CMAKE_SYSTEM_NAME MATCHES "Darwin") # MacOSX
-	set(srcs src/Enums.cc src/osx/BluetoothDeviceResources.mm src/osx/BluetoothWorker.mm src/osx/BTSerialPortBinding.mm src/osx/DeviceINQ.mm src/osx/pipe.c)
-	set(libs "-framework Foundation -framework IOBluetooth -fobjc-arc")
-	include_directories(osx)
+	target_sources(bluetoothserialport
+	PRIVATE
+		${CMAKE_CURRENT_SOURCE_DIR}/src/osx/BluetoothDeviceResources.mm
+		${CMAKE_CURRENT_SOURCE_DIR}/src/osx/BluetoothWorker.mm
+		${CMAKE_CURRENT_SOURCE_DIR}/src/osx/BTSerialPortBinding.mm
+		${CMAKE_CURRENT_SOURCE_DIR}/src/osx/DeviceINQ.mm src/osx/pipe.c
+	)
+	target_include_directories(bluetoothserialport
+	PRIVATE
+		${CMAKE_CURRENT_SOURCE_DIR}/src/osx
+	)
+	target_link_libraries(bluetoothserialport "-framework Foundation -framework IOBluetooth -fobjc-arc")
 else()
-	set(srcs src/Enums.cc src/linux/BTSerialPortBinding.cc src/linux/DeviceINQ.cc)
-	set(libs bluetooth)
-	include_directories(linux)
+	target_sources(bluetoothserialport
+	PRIVATE
+		${CMAKE_CURRENT_SOURCE_DIR}/src/linux/BTSerialPortBinding.cc
+		${CMAKE_CURRENT_SOURCE_DIR}/src/linux/DeviceINQ.cc
+	)
+	target_link_libraries(bluetoothserialport bluetooth)
+	target_include_directories(bluetoothserialport
+	PRIVATE
+		${CMAKE_CURRENT_SOURCE_DIR}/src/linux
+	)
 endif()
 
-include_directories(./src)
-
-add_library(bluetoothserialport ${srcs})
-add_executable(inquiretest EXCLUDE_FROM_ALL test/main.cpp)
+target_include_directories(bluetoothserialport PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src)
+add_executable(inquiretest EXCLUDE_FROM_ALL ${CMAKE_CURRENT_SOURCE_DIR}/test/main.cpp)
 
 set_target_properties(bluetoothserialport
 PROPERTIES
 	POSITION_INDEPENDENT_CODE ON
 )
 
-target_link_libraries(bluetoothserialport ${libs})
 target_link_libraries(inquiretest bluetoothserialport)
