@@ -40,7 +40,7 @@ DeviceINQ::~DeviceINQ()
 {
 }
 
-vector<device> DeviceINQ::Inquire()
+vector<device> DeviceINQ::Inquire(int length)
 {
 	char addr[19] = { 0 };
 	char name[248] = { 0 };
@@ -52,7 +52,7 @@ vector<device> DeviceINQ::Inquire()
 
 	int max_rsp = 255;
 	inquiry_info *ii = (inquiry_info*)malloc(max_rsp * sizeof(inquiry_info));
-	int num_rsp = hci_inquiry(dev_id, 8, max_rsp, NULL, &ii, IREQ_CACHE_FLUSH);
+	int num_rsp = hci_inquiry(dev_id, length, max_rsp, NULL, &ii, IREQ_CACHE_FLUSH);
 
 	vector<device> devices;
 
@@ -171,7 +171,6 @@ int DeviceINQ::SdpSearch(string address)
 
 		sdp_record_free(rec);
 	}
-
 	sdp_close(session);
 	return channelID;
 }
