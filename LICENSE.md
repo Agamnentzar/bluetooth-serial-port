@@ -1,4 +1,4 @@
-Copyright (c) 2014, Radosław Eichler  
+Copyright (c) 2014, Agamnentzar  
 Copyright (c) 2012-2013, Eelco Cramer  
 All rights reserved.
 
