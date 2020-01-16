@@ -89,12 +89,14 @@
 /** Creates a run loop and sets a timer to keep the run loop alive */
 - (void) startBluetoothThread: (id) arg
 {
-	NSRunLoop *runLoop = [NSRunLoop currentRunLoop];
-      //schedule a timer so runMode won't stop immediately
-    keepAliveTimer = [[NSTimer alloc] initWithFireDate:[NSDate distantFuture]
-        interval:1 target:nil selector:nil userInfo:nil repeats:YES];
-    [runLoop addTimer:keepAliveTimer forMode:NSDefaultRunLoopMode];
- 	[[NSRunLoop currentRunLoop] run];
+	@autoreleasepool {
+		NSRunLoop *runLoop = [NSRunLoop currentRunLoop];
+    	  //schedule a timer so runMode won't stop immediately
+    	keepAliveTimer = [[NSTimer alloc] initWithFireDate:[NSDate distantFuture]
+        	interval:1 target:nil selector:nil userInfo:nil repeats:YES];
+    	[runLoop addTimer:keepAliveTimer forMode:NSDefaultRunLoopMode];
+	 	[[NSRunLoop currentRunLoop] run];
+	}
 }
 
 /** Disconnect from a Bluetooth device */
@@ -164,21 +166,21 @@
 
 	[devicesLock lock];
 
-		IOBluetoothDevice *device = [IOBluetoothDevice deviceWithAddressString:address];
+	IOBluetoothDevice *device = [IOBluetoothDevice deviceWithAddressString:address];
 	if (device != nil && [devices objectForKey: [device addressString]] == nil) {
 
-			IOBluetoothRFCOMMChannel *channel = [[IOBluetoothRFCOMMChannel alloc] init];
-			if ([device openRFCOMMChannelSync: &channel withChannelID:[channelID intValue] delegate: self] == kIOReturnSuccess) {
-				connectResult = kIOReturnSuccess;
-			   	pipe_producer_t *producer = pipe_producer_new(pipe);
-			   	BluetoothDeviceResources *res = [[BluetoothDeviceResources alloc] init];
-			   	res.device = device;
-			   	res.producer = producer;
-			   	res.channel = channel;
+		IOBluetoothRFCOMMChannel *channel = [[IOBluetoothRFCOMMChannel alloc] init];
+		if ([device openRFCOMMChannelSync: &channel withChannelID:[channelID intValue] delegate: self] == kIOReturnSuccess) {
+			connectResult = kIOReturnSuccess;
+		   	pipe_producer_t *producer = pipe_producer_new(pipe);
+		   	BluetoothDeviceResources *res = [[BluetoothDeviceResources alloc] init];
+		   	res.device = device;
+		   	res.producer = producer;
+			res.channel = channel;
 
-			   	[devices setObject:res forKey:[device addressString]];
-			}
+			[devices setObject:res forKey:[device addressString]];
 		}
+	}
 
 	[devicesLock unlock];
 }
@@ -248,23 +250,6 @@
 {
 	[devicesLock unlock];
 	CFRunLoopStop(CFRunLoopGetCurrent());
-}
-
-/** Inquire Bluetooth devices and send results through the given pipe */
-- (void) inquireWithPipe: (pipe_t *)pipe
-{
-	@synchronized(self) {
-	  inquiryProducer = pipe_producer_new(pipe);
-		[self performSelector:@selector(inquiryTask) onThread:worker withObject:nil waitUntilDone:false];
-	}
-}
-
-/** Worker task to the the inquiry */
-- (void) inquiryTask
-{
-  IOBluetoothDeviceInquiry *bdi = [[IOBluetoothDeviceInquiry alloc] init];
-	[bdi setDelegate: self];
-	[bdi start];
 }
 
 /** Get the RFCOMM channel for a given device */
@@ -352,42 +337,4 @@
 {
 	[self disconnectFromDevice: [[rfcommChannel getDevice] addressString]];
 }
-
-/** Called when the device inquiry completes */
-- (void) deviceInquiryComplete: (IOBluetoothDeviceInquiry *) sender error: (IOReturn) error aborted: (BOOL) aborted
-{
-	@synchronized(self) {
-		if (inquiryProducer != NULL) {
-			// free the producer so the main thread is signaled that the inquiry has been completed.
-			pipe_producer_free(inquiryProducer);
-			inquiryProducer = NULL;
-		}
-	}
-}
-
-/** Called when a device has been found */
-- (void) deviceInquiryDeviceFound: (IOBluetoothDeviceInquiry*) sender device: (IOBluetoothDevice*) device
-{
-	@synchronized(self) {
-		if (inquiryProducer != NULL) {
-			device_info_t *info = new device_info_t;
-			info->address = [[device addressString] UTF8String];
-			info->connected = [device isConnected];
-			info->paired = [device isPaired];
-			info->favorite = [device isFavorite];
-			info->classOfDevice = [device classOfDevice];
-			info->rssi = [device rawRSSI];
-			info->lastSeen = [[device getLastInquiryUpdate] timeIntervalSince1970];
-
-			if ([device name] != nil)
-				info->name = [[device name] UTF8String];
-
-			// push the device data into the pipe to notify the main thread
-			pipe_push(inquiryProducer, info, 1);
-
-			delete info;
-		}
-	}
-}
-
 @end

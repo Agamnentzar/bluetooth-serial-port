@@ -32,7 +32,7 @@ struct device_info_t {
 	double lastSeen;
 };
 
-@interface BluetoothWorker: NSObject {
+@interface BluetoothWorker: NSObject<IOBluetoothRFCOMMChannelDelegate> {
     @private
 	NSMutableDictionary *devices;
     NSThread *worker;
@@ -51,17 +51,11 @@ struct device_info_t {
 - (void) disconnectFromDevice: (NSString *) address;
 - (IOReturn)connectDevice: (NSString *) address onChannel: (int) channel withPipe: (pipe_t *)pipe;
 - (IOReturn)writeAsync:(void *)data length:(UInt16)length toDevice: (NSString *)address;
-- (void) inquireWithPipe: (pipe_t *)pipe;
+
 - (int) getRFCOMMChannelID: (NSString *) address;
 
 - (void)rfcommChannelData:(IOBluetoothRFCOMMChannel*)rfcommChannel data:(void *)dataPointer length:(size_t)dataLength;
 - (void)rfcommChannelClosed:(IOBluetoothRFCOMMChannel*)rfcommChannel;
-
-- (void) deviceInquiryComplete: (IOBluetoothDeviceInquiry*) sender 
-    error: (IOReturn) error
-    aborted: (BOOL) aborted;
-- (void) deviceInquiryDeviceFound: (IOBluetoothDeviceInquiry*) sender
-	device: (IOBluetoothDevice*) device;
 
 - (void) rfcommChannelWriteComplete:(IOBluetoothRFCOMMChannel*)rfcommChannel refcon:(void*)refcon status:(IOReturn)error;
 

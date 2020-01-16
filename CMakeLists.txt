@@ -29,7 +29,12 @@ elseif(APPLE) # MacOSX
 		${CMAKE_CURRENT_SOURCE_DIR}/src/osx/DeviceINQ.mm
 		${CMAKE_CURRENT_SOURCE_DIR}/src/osx/pipe.c
 	)
-	target_link_libraries(bluetoothserialport "-framework Foundation -framework IOBluetooth -fobjc-arc")
+	find_library(FOUNDATION Foundation)
+	find_library(IOBLUETOOTH IOBluetooth)
+	target_link_libraries(bluetoothserialport ${FOUNDATION} ${IOBLUETOOTH} -fobjc-arc)
+	
+	add_executable(btScan src/osx/btScan.mm)
+	target_link_libraries(btScan ${FOUNDATION} ${IOBLUETOOTH})
 else() # Linux
 	set(PLATFORM linux)
 	target_sources(bluetoothserialport
@@ -60,4 +65,4 @@ PROPERTIES
 	POSITION_INDEPENDENT_CODE ON
 )
 
-target_link_libraries(inquiretest bluetoothserialport)
+target_link_libraries(inquiretest bluetoothserialport ${FOUNDATION} ${IOBLUETOOTH})
