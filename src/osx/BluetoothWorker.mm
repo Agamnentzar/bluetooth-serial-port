@@ -164,10 +164,9 @@
 
 	[devicesLock lock];
 
-	if ([devices objectForKey: address] == nil) {
 		IOBluetoothDevice *device = [IOBluetoothDevice deviceWithAddressString:address];
+	if (device != nil && [devices objectForKey: [device addressString]] == nil) {
 
-		if (device != nil) {
 			IOBluetoothRFCOMMChannel *channel = [[IOBluetoothRFCOMMChannel alloc] init];
 			if ([device openRFCOMMChannelSync: &channel withChannelID:[channelID intValue] delegate: self] == kIOReturnSuccess) {
 				connectResult = kIOReturnSuccess;
@@ -180,7 +179,6 @@
 			   	[devices setObject:res forKey:[device addressString]];
 			}
 		}
-	}
 
 	[devicesLock unlock];
 }
