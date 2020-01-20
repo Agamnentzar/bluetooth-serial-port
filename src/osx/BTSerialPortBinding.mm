@@ -56,7 +56,7 @@ void BTSerialPortBinding::Connect()
     NSString *addressString = [NSString stringWithCString:address.c_str() encoding:NSASCIIStringEncoding];
     BluetoothWorker *worker = [BluetoothWorker getInstance];
     // create pipe to communicate with delegate
-    pipe_t *pipe = pipe_new(sizeof(int), 0);
+    pipe_t *pipe = pipe_new(sizeof(unsigned char), 0);
 
 	int status;
 

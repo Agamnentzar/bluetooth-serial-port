@@ -333,7 +333,6 @@
 - (void)rfcommChannelData:(IOBluetoothRFCOMMChannel*)rfcommChannel data:(void *)dataPointer length:(size_t)dataLength
 {
 	NSString *address = [[rfcommChannel getDevice] addressString];
-	NSData *data = [NSData dataWithBytes: dataPointer length: dataLength];
 
 	while (![devicesLock tryLock]) {
 		CFRunLoopRun();
@@ -343,7 +342,7 @@
 
 	if (res != NULL && res.producer != NULL) {
 		// push the data into the pipe so it can be read from the main thread
-		pipe_push(res.producer, [data bytes], data.length);
+		pipe_push(res.producer, dataPointer, dataLength);
 	}
 
 	[devicesLock unlock];
