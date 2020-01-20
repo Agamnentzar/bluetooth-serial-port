@@ -74,6 +74,16 @@ struct device
 };
 ```
 
+*Note for Mac users:* `DeviceINQ` relies on a separate executable named `btScan`
+built together with the library which has to be in the same directory as the
+library (the code searching for it is at the top of `DeviceINQ::Inquire()` and
+can be modified according to your needs).  The reason for this is that
+`IOBluetoothDeviceInquiry` has the undocumented requirement that the RunLoop of
+the application's main thread be executed.  While almost any GUI application will
+fulfill this requirement, a simple command line tool such as the bundled example
+won't.  Since we can't just hijack the application's main thread, this is the only
+way to guarantee that the device search functions correctly.
+
 #### DeviceINQ::SdpSearch(address)
 
 Returns serial port channelID for device at given address
