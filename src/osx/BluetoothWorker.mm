@@ -177,7 +177,7 @@
 			   	res.producer = producer;
 			   	res.channel = channel;
 
-			   	[devices setObject:res forKey:address];
+			   	[devices setObject:res forKey:[device addressString]];
 			}
 		}
 	}
