@@ -129,7 +129,7 @@ Writes data to the device
 * __buffer__: pointer to buffer with data to send
 * __length__: number of bytes to send
 
-#### BTSerialPortBinding::IsDataAvailable(buffer, length)
+#### BTSerialPortBinding::IsDataAvailable()
 
 Returns true if there is data in the buffer ready to be read
 (not implemented for OSX - always returns false)
