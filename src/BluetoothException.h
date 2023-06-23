@@ -12,16 +12,16 @@
 class BluetoothException : std::exception
 {
 private:
-	std::string message;
+	std::string m_message;
 
 public:
 	BluetoothException(std::string message) NOEXCEPT
 	{
-		this->message = message;
+		m_message = message;
 	}
 
 	virtual const char* what() const NOEXCEPT
 	{
-		return message.c_str();
+		return m_message.c_str();
 	}
 };
