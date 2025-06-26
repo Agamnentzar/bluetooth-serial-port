@@ -5,7 +5,7 @@ project(bluetoothserialport LANGUAGES CXX)
 
 add_library(bluetoothserialport)
 
-target_compile_features(bluetoothserialport PUBLIC cxx_std_11)
+target_compile_features(bluetoothserialport PRIVATE cxx_std_11)
 
 target_sources(bluetoothserialport PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Enums.cc
